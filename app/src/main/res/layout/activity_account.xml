@@ -11,6 +11,8 @@
     android:layout_height="wrap_content"
     android:text="Thông tin tài khoản"
     android:textSize="30dp"
+    android:textStyle="bold"
+    android:textColor="@color/blue"
     android:gravity="center"
     >
 
@@ -20,7 +22,8 @@
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Họ tên :"
+        android:text="Họ và tên :"
+        android:textColor="@color/blue"
         android:textSize="20dp"
         >
 
@@ -31,6 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Email :"
+        android:textColor="@color/blue"
         android:textSize="20dp"
         >
 
