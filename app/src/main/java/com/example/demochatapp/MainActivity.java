@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     ListView listViewtimkiem ,listViewinfor;
-    EditText test;
     EditText noidung;
     Button btntiemkiem ,btnlogout;
     TextView hotenaccount,emailaccount;
