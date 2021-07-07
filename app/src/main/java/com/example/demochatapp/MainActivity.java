@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,13 +33,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
+
 import java.util.List;
-import java.util.Set;
+
 
 
 public class MainActivity extends AppCompatActivity {
@@ -220,22 +223,11 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
-
-
-
-
-
-
-
-
  }
 
     private void eventtiemkiem() {
-
         prepareDB();
         getdata();
-
-
         btntiemkiem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -250,7 +242,6 @@ public class MainActivity extends AppCompatActivity {
                     listUsers.clear();
                     DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
 
-
                     mDatabase.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -258,44 +249,26 @@ public class MainActivity extends AppCompatActivity {
                             for (DataSnapshot snapshot1:snapshot.getChildren()){
                                 user u1= (user) snapshot1.getValue( user.class);
 
-                                if(u1.name.contains(noidung.getText().toString()) && !u1.username.equals(account.username)){
+                                if((u1.name.contains(noidung.getText().toString())
+                                        || u1.email.contains(noidung.getText().toString())) && !u1.username.equals(account.username)){
                                     listUsers.add(u1);
-                                    Cursor cursor=databases.getdata("select * from user where email = '" +u1.email+
-                                            "' and username = '"+u1.username+"' ");
-                                    if(cursor.getCount()==0){
-                                        Toast.makeText(MainActivity.this,"them vao database",Toast.LENGTH_SHORT).show();
-                                        databases.querydata("insert into user values('"+u1.email+"' ,'"+u1.name+"' ,'"+u1.username+"')");
-                                    }
-
+                                    java.util.Date utilDate = new java.util.Date();
+                                    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+                                    databases.querydata("insert into lichsutimkiem values('"+account.username+"' ,"+sqlDate.getTime()+",'"+u1.username+"')");
                                     adapter.notifyDataSetChanged();
-
                                 }
-
                             }
-
                         }
-
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
 
                         }
                     });
-
                     adapter.notifyDataSetChanged();
                 }
-
-
-
             }
         });
-
-
-
-
-
     }
-
-
 
     public  void joinmess(String nguoinhan) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference(account.username);
@@ -348,20 +321,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void prepareDB() {
         databases=new Databases(this,"pro.sqlite",null,1);
-        databases.querydata(" CREATE TABLE IF NOT EXISTS user(email VARCHAR(200) ," + "name VARCHAR(200) ,username VARCHAR(200))");
-
+        databases.querydata("CREATE TABLE IF NOT EXISTS user(email VARCHAR(200) ," + "name VARCHAR(200), username VARCHAR(200))");
+        databases.querydata("CREATE TABLE IF NOT EXISTS lichsutimkiem(id VARCHAR(200) ," + "thoigian DateTime, username VARCHAR(200))");
     }
     private void getdata() {
-
         final List<user> listsql=new ArrayList<>();
         final searchadapter   adaptersql=new searchadapter(MainActivity.this,R.layout.itemsearch,listsql);
         listViewtimkiem.setAdapter(adaptersql);
         databases=new Databases(this,"pro.sqlite",null ,1);
         listsql.add(account);
-        Cursor cursor=databases.getdata("select * from user");
+        Cursor cursor=databases.getdata("select DISTINCT id, username from lichsutimkiem where id='"+account.username+"'" + " order by thoigian desc");
         listsql.clear();
         while (cursor.moveToNext()){
-            listsql.add(new user(cursor.getString(1),cursor.getString(2),cursor.getString(0),null));
+            Cursor cur=databases.getdata("select * from user where username='"+cursor.getString(1)+"'");
+            if(cur.getCount() > 0){
+                cur.moveToFirst();
+                listsql.add(new user(cur.getString(1),cur.getString(2),cur.getString(0),null));
+            }
             adaptersql.notifyDataSetChanged();
         }
     }

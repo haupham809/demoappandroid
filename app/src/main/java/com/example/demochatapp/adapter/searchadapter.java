@@ -33,9 +33,6 @@ public class searchadapter extends BaseAdapter {
     int item_layout;
     List<user> users;
 
-
-
-
     @Override
     public int getCount() {
         return users.size();

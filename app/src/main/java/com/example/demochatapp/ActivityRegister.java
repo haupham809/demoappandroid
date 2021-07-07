@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.demochatapp.database.Databases;
 import com.example.demochatapp.model.user;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -76,7 +77,8 @@ public class ActivityRegister extends AppCompatActivity {
 
                             }
                             if(x==0){
-
+                                Databases databases = new Databases(ActivityRegister.this,"pro.sqlite",null,1);
+                                databases.querydata("insert into user values('"+email.getText()+"' ,'"+name.getText()+"','"+username.getText()+"')");
                                     String userId = mDatabase.push().getKey();
                                     mDatabase.child(userId).setValue(use);
                                     startActivity(new Intent(ActivityRegister.this
@@ -143,7 +145,6 @@ public class ActivityRegister extends AppCompatActivity {
                     Toast.makeText(ActivityRegister.this,"thanh cong",Toast.LENGTH_SHORT).show();
 
                     if(user1!=null){
-
                         HashMap<String,Object> hashMap=new HashMap<>();
                         hashMap.put("username",user);
                         hashMap.put("email",email);
@@ -152,7 +153,6 @@ public class ActivityRegister extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
-
                                     Toast.makeText(ActivityRegister.this,"tao tai khoan thanh cong",Toast.LENGTH_SHORT).show();
 
                                     startActivity(new Intent(ActivityRegister.this
@@ -160,9 +160,6 @@ public class ActivityRegister extends AppCompatActivity {
                                 }
                             }
                         });
-
-
-
                     }
                 }
             }
