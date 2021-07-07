@@ -80,7 +80,7 @@ public class ActivityRegister extends AppCompatActivity {
                                 Databases databases = new Databases(ActivityRegister.this,"pro.sqlite",null,1);
                                 databases.querydata("insert into user values('"+email.getText()+"' ,'"+name.getText()+"','"+username.getText()+"')");
                                     String userId = mDatabase.push().getKey();
-                                    mDatabase.child(userId).setValue(use);
+                                    mDatabase.child(use.username).setValue(use);
                                     startActivity(new Intent(ActivityRegister.this
                                             ,Activitylogin.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK));
 
