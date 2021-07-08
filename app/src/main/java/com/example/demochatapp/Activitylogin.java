@@ -7,32 +7,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.demochatapp.adapter.searchadapter;
 import com.example.demochatapp.database.Databases;
 import com.example.demochatapp.model.user;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Activitylogin extends AppCompatActivity {
 
@@ -77,7 +64,7 @@ public class Activitylogin extends AppCompatActivity {
 
                                 Intent intent=new Intent(Activitylogin.this,MainActivity.class);
                                 intent.putExtra("account", u1);
-                                databases.querydata("insert into userdangnhap values('"+u1.email+"' ,'"+u1.name+"' ,'"+u1.username+"')");
+                                databases.querydata("insert into userdangnhap values('"+u1.email+"' ,'"+u1.name+"' ,'"+u1.username+"' ,'"+u1.pass+ "')");
                                 startActivity(intent);
 
 
@@ -146,7 +133,7 @@ public class Activitylogin extends AppCompatActivity {
 
     private void prepareDB() {
         databases=new Databases(this,"pro.sqlite",null,1);
-        databases.querydata(" CREATE TABLE IF NOT EXISTS userdangnhap(email VARCHAR(200) ," + "name VARCHAR(200) ,username VARCHAR(200))");
+        databases.querydata(" CREATE TABLE IF NOT EXISTS userdangnhap(email VARCHAR(200) ," + "name VARCHAR(200) ,username VARCHAR(200),password VARCHAR(200))");
 
     }
 
@@ -158,7 +145,7 @@ public class Activitylogin extends AppCompatActivity {
         Cursor cursor=databases.getdata("select * from userdangnhap");
 
         while (cursor.moveToNext()){
-            user account = new user(cursor.getString(1),cursor.getString(2),cursor.getString(0),null);
+            user account = new user(cursor.getString(1),cursor.getString(2),cursor.getString(0),cursor.getString(3));
             Intent intent=new Intent(Activitylogin.this,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra("account", account);
             startActivity(intent);

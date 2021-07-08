@@ -6,24 +6,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.demochatapp.MainActivity;
 import com.example.demochatapp.R;
 import com.example.demochatapp.model.informess;
-import com.example.demochatapp.model.sendmess;
-import com.example.demochatapp.model.user;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class informessadapter extends BaseAdapter {
 
-    public informessadapter(Activity context, int item_layout, List<informess> informesses) {
+
+
+    MainActivity context;
+
+    public informessadapter(MainActivity context, int item_layout, List<informess> informesses) {
         this.context = context;
         this.item_layout = item_layout;
         this.informesses = informesses;
     }
 
-    Activity context;
     int item_layout;
     List<informess> informesses;
 
@@ -56,6 +62,7 @@ public class informessadapter extends BaseAdapter {
             holder.tinnhan = convertView.findViewById(R.id.tinnhandagui);
             holder.nguoigui = convertView.findViewById(R.id.nguoigui);
             holder.thoigiangui = convertView.findViewById(R.id.thoigiangui);
+            holder.tosendmess=convertView.findViewById(R.id.clickmess);
             convertView.setTag(holder);
         }
         else{
@@ -66,15 +73,22 @@ public class informessadapter extends BaseAdapter {
         holder.email.setText(p.email);
         holder.tinnhan.setText(p.tinnhanmoinhat);
         holder.nguoigui.setText(p.nguoigui + ":");
-        holder.thoigiangui.setText(String.valueOf(p.thoigiangui));
+        Date date=new Date(p.thoigiangui);
+        final DateFormat df2 = new SimpleDateFormat("HH:mm dd-MM-yyyy ");
 
-        /*holder.add.setOnClickListener(new View.OnClickListener() {
+        // Date ==> String.
+        String dateString2 = df2.format(date);
+        holder.thoigiangui.setText(dateString2.toString());
+
+
+        holder.tosendmess.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 context.joinmess(p.username);
+
             }
-        });*/
+        });
         return convertView;
     }
     public static class ViewHolder{
@@ -83,6 +97,7 @@ public class informessadapter extends BaseAdapter {
         TextView tinnhan;
         TextView nguoigui;
         TextView thoigiangui;
+        LinearLayout tosendmess;
 
     }
 }

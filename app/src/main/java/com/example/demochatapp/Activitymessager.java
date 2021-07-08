@@ -4,21 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.demochatapp.adapter.messadapter;
+import com.example.demochatapp.model.danhsachmess;
 import com.example.demochatapp.model.sendmess;
-import com.example.demochatapp.model.user;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -27,14 +20,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 public class Activitymessager extends AppCompatActivity {
 ListView listView;
@@ -71,11 +58,13 @@ String nguoinhan;
                 if(u1.nguoigui.equals(nguoigui) &&u1.nguoinhan.equals(nguoinhan)){
                     mess.add(u1);
                     adapter.notifyDataSetChanged();
+
                 }
                 else  if(u1.nguoinhan.equals(nguoigui) &&u1.nguoigui.equals(nguoinhan)){
                     mess.add(u1);
                     adapter.notifyDataSetChanged();
                 }
+
 
             }
 
@@ -116,6 +105,62 @@ String nguoinhan;
                     String userId = mDatabase.push().getKey();
                     mDatabase.child(userId).setValue(mess);
                     input.setText("");
+
+                    /*them nguoi nhan tin vao danh sach */
+                    DatabaseReference mDatabasedsmessto = FirebaseDatabase.getInstance().getReference(nguoigui);
+                    mDatabasedsmessto.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            int x=0;
+                            for (DataSnapshot snapshot1:snapshot.getChildren()){
+                                danhsachmess uuu= (danhsachmess) snapshot1.getValue( danhsachmess.class);
+                                if(uuu.nguoinhan.equals(nguoinhan))
+                                    x++;
+
+                            }
+                            if(x==0){
+                                danhsachmess ds=new danhsachmess(nguoinhan);
+                                String userId = mDatabasedsmessto.push().getKey();
+                                mDatabasedsmessto.child(userId).setValue(ds);
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+                    /*them nguoi gui tin vao danh sach */
+                    DatabaseReference mDatabasedsmessfrom = FirebaseDatabase.getInstance().getReference(nguoinhan);
+                    mDatabasedsmessfrom.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            int x=0;
+                            for (DataSnapshot snapshot1:snapshot.getChildren()){
+                                danhsachmess uuu= (danhsachmess) snapshot1.getValue( danhsachmess.class);
+                                if(uuu.nguoinhan.equals(nguoigui))
+                                    x++;
+
+                            }
+                            if(x==0){
+                                danhsachmess ds=new danhsachmess(nguoigui);
+                                String userId = mDatabasedsmessfrom.push().getKey();
+                                mDatabasedsmessfrom.child(userId).setValue(ds);
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+
 
                 }
                 else {
