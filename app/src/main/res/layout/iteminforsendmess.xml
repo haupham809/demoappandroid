@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:id="@+id/clickmess">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10">
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24dp"
+            android:text="hau"
+            android:layout_weight="5">
+
+        </TextView>
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="22dp"
+            android:gravity="right"
+            android:text="hau"
+            android:layout_weight="5">
+        </TextView>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="12">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="11">
+            <TextView
+                android:id="@+id/nguoigui"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:gravity="center"
+                android:textSize="20dp"
+                android:layout_marginTop="10dp"
+                android:text="hau"
+
+                ></TextView>
+            <TextView
+                android:layout_marginLeft="10dp"
+                android:id="@+id/tinnhandagui"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:gravity="center"
+                android:textSize="15dp"
+                android:layout_marginTop="10dp"
+                android:text="Tin nhan dem"
+
+                ></TextView>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/thoigiangui"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:gravity="bottom"
+            android:layout_weight="1"
+            android:textSize="13dp"
+            android:layout_marginTop="10dp"
+            android:text="24:20"
+
+            ></TextView>
+    </LinearLayout>
+
+    </LinearLayout>
