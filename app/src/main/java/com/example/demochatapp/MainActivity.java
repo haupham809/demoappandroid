@@ -503,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
         listsql.clear();
         while (cursor.moveToNext()){
 
-            String s= cursor.getString(0);
+            String s= cursor.getString(1);
             DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
 
             mDatabase.addValueEventListener(new ValueEventListener() {
