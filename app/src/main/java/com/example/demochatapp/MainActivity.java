@@ -2,10 +2,13 @@ package com.example.demochatapp;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -306,220 +309,7 @@ public class MainActivity extends AppCompatActivity {
         final informessadapter adapter=new  informessadapter(MainActivity.this,R.layout.itemsearch,listUsers);
         listViewinfor.setAdapter(adapter);
 
-        //luu thông tin tai khoản va tin nhan tu firebase vao sqllite
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference(account.username);
-        mDatabase.addChildEventListener(new ChildEventListener() {
-                        @Override
-                        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                            danhsachmess nguoidanhan= (danhsachmess) snapshot.getValue(danhsachmess.class);
-
-                            Cursor cur=databases.getdata("select * from user where username='"+nguoidanhan.nguoinhan+"'");
-                            if(cur.getCount() <=0 ){
-
-
-                                String s= nguoidanhan.nguoinhan;
-                                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
-
-                                mDatabase.addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        for (DataSnapshot snapshot1:snapshot.getChildren()){
-                                            user u1= (user) snapshot1.getValue( user.class);
-                                            if(u1.username.equals(s) ){
-
-                                                databases.querydata(" insert into user values( '" +u1.email+"' , '"+u1.name+"' , '" +u1.username+"' ) ");
-
-                                            }
-
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                    }
-                                });
-
-
-                            }
-                            //them tin nhan vao sql lite
-                            DatabaseReference mDatabasemess1 = FirebaseDatabase.getInstance().getReference("message");
-                            mDatabasemess1.addChildEventListener(new ChildEventListener() {
-                                @Override
-                                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                                    sendmess tinnhan= (sendmess) snapshot.getValue(sendmess.class);
-                                    if( (tinnhan.nguoigui.equals(account.username)&&tinnhan.nguoinhan.equals(nguoidanhan.nguoinhan)) || (tinnhan.nguoinhan.equals(account.username)&&tinnhan.nguoigui.equals(nguoidanhan.nguoinhan))  ){
-                                        Cursor cursor = databases.getdata("select * from message where nguoigui = '"+tinnhan.nguoigui+"'  and nguoinhan = '"+tinnhan.nguoinhan+"'  and   tinnhan  ='"+tinnhan.tinnhan+"'  and  thoigiangui = '"+tinnhan.thoigiangui+"' ");
-                                       if(cursor.getCount()<=0){
-                                           databases.querydata(" insert into message values( '" +tinnhan.nguoigui+"' , '"+tinnhan.nguoinhan+"' , '" +tinnhan.tinnhan+"' , '"+tinnhan.thoigiangui+"') ");
-
-                                       }
-
-                                     }
-
-                                    listUsers.clear();
-                                    Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
-                                    while (cur.moveToNext()){
-
-                                        Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
-                                                " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
-                                        informesss.moveToNext();
-                                        Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
-                                        if(user.getCount()>0&& informesss.getCount() > 0) {
-                                            user.moveToNext();
-
-                                                if (informesss.getString(0).equals(account.username)) {
-                                                    informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
-                                                    listUsers.add(infor);
-                                                    adapter.notifyDataSetChanged();
-
-                                                } else {
-                                                    informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
-                                                    listUsers.add(infor);
-                                                    adapter.notifyDataSetChanged();
-
-                                                }
-
-                                        }
-                                        for (int i = 0; i < listUsers.size(); i++)
-                                            for (int j = 0; j < listUsers.size() - 1; j++)
-                                                if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
-                                                {
-                                                    informess a = listUsers.get(j);
-                                                    listUsers.set(j ,listUsers.get(j + 1));
-                                                    listUsers.set(j + 1,a);
-
-                                                }
-
-
-                                    }
-
-                                    adapter.notifyDataSetChanged();
-
-                                }
-
-                                @Override
-                                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-
-
-
-                                }
-
-                                @Override
-                                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                                    listUsers.clear();
-                                    Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
-                                    while (cur.moveToNext()){
-
-                                        Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
-                                                " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
-
-                                        Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
-                                        if(user.getCount()>0&& informesss.getCount() > 0) {
-                                            user.moveToNext();
-                                            informesss.moveToNext();
-                                            if (informesss.getString(0).equals(account.username)) {
-                                                informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
-                                                listUsers.add(infor);
-                                                adapter.notifyDataSetChanged();
-
-                                            } else {
-                                                informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
-                                                listUsers.add(infor);
-                                                adapter.notifyDataSetChanged();
-
-                                            }
-
-                                        }
-                                        for (int i = 0; i < listUsers.size(); i++)
-                                            for (int j = 0; j < listUsers.size() - 1; j++)
-                                                if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
-                                                {
-                                                    informess a = listUsers.get(j);
-                                                    listUsers.set(j ,listUsers.get(j + 1));
-                                                    listUsers.set(j + 1,a);
-
-                                                }
-
-
-                                    }
-
-                                }
-
-                                @Override
-                                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-
-
-
-                            }
-
-                        @Override
-                        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                        }
-
-                        @Override
-                        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-                            listUsers.clear();
-                            Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
-                            while (cur.moveToNext()){
-
-                                Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
-                                        " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
-
-                                Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
-                                if(user.getCount()>0&& informesss.getCount() > 0) {
-                                    user.moveToNext();
-                                    informesss.moveToNext();
-                                    if (informesss.getString(0).equals(account.username)) {
-                                        informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
-                                        listUsers.add(infor);
-                                        adapter.notifyDataSetChanged();
-
-                                    } else {
-                                        informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
-                                        listUsers.add(infor);
-                                        adapter.notifyDataSetChanged();
-
-                                    }
-
-                                }
-                                for (int i = 0; i < listUsers.size(); i++)
-                                    for (int j = 0; j < listUsers.size() - 1; j++)
-                                        if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
-                                        {
-                                            informess a = listUsers.get(j);
-                                            listUsers.set(j ,listUsers.get(j + 1));
-                                            listUsers.set(j + 1,a);
-
-                                        }
-
-
-                            }
-                        }
-
-                        @Override
-                        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-
-        //luu thong tin nguo da nhan
+        //luu thong tin nguoi da nhan
 
         DatabaseReference mDatabasedsmessto = FirebaseDatabase.getInstance().getReference(account.username);
         mDatabasedsmessto.addValueEventListener(new ValueEventListener() {
@@ -587,6 +377,250 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+        //luu thông tin tai khoản va tin nhan tu firebase vao sqllite
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference(account.username);
+        mDatabase.addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                            danhsachmess nguoidanhan= (danhsachmess) snapshot.getValue(danhsachmess.class);
+
+                            Cursor cur=databases.getdata("select * from user where username='"+nguoidanhan.nguoinhan+"'");
+                            if(cur.getCount() <=0 ){
+
+
+                                String s= nguoidanhan.nguoinhan;
+                                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
+
+                                mDatabase.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        for (DataSnapshot snapshot1:snapshot.getChildren()){
+                                            user u1= (user) snapshot1.getValue( user.class);
+                                            if(u1.username.equals(s) ){
+
+                                                databases.querydata(" insert into user values( '" +u1.email+"' , '"+u1.name+"' , '" +u1.username+"' ) ");
+
+                                            }
+
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+
+
+                            }
+                            //them tin nhan vao sql lite
+                            DatabaseReference mDatabasemess1 = FirebaseDatabase.getInstance().getReference("message");
+                            mDatabasemess1.addChildEventListener(new ChildEventListener() {
+                                @Override
+                                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                                    sendmess tinnhan= (sendmess) snapshot.getValue(sendmess.class);
+                                    if( (tinnhan.nguoigui.equals(account.username)&&tinnhan.nguoinhan.equals(nguoidanhan.nguoinhan)) || (tinnhan.nguoinhan.equals(account.username)&&tinnhan.nguoigui.equals(nguoidanhan.nguoinhan))  ){
+                                        Cursor cursor = databases.getdata("select * from message where nguoigui = '"+tinnhan.nguoigui+"'  and nguoinhan = '"+tinnhan.nguoinhan+"'  and   tinnhan  ='"+tinnhan.tinnhan+"'  and  thoigiangui = '"+tinnhan.thoigiangui+"' ");
+                                       if(cursor.getCount()<=0){
+                                           databases.querydata(" insert into message values( '" +tinnhan.nguoigui+"' , '"+tinnhan.nguoinhan+"' , '" +tinnhan.tinnhan+"' , '"+tinnhan.thoigiangui+"') ");
+                                           playAudio();
+                                       }
+
+                                     }
+
+                                    listUsers.clear();
+                                    Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
+                                    while (cur.moveToNext()){
+
+                                        Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
+                                                " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
+
+                                        Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
+                                        try {
+                                            user.moveToNext();
+                                            informesss.moveToNext();
+                                            if (informesss.getString(0).equals(account.username)) {
+                                                informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
+                                                listUsers.add(infor);
+                                                adapter.notifyDataSetChanged();
+
+                                            } else {
+                                                informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
+                                                listUsers.add(infor);
+                                                adapter.notifyDataSetChanged();
+
+                                            }
+                                        } catch (Exception e) {
+                                        } finally{
+                                            if (user != null||informesss != null) {
+                                                user.close();
+                                                informesss.close();
+                                            }
+                                        }
+
+
+
+                                        for (int i = 0; i < listUsers.size(); i++)
+                                            for (int j = 0; j < listUsers.size() - 1; j++)
+                                                if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
+                                                {
+                                                    informess a = listUsers.get(j);
+                                                    listUsers.set(j ,listUsers.get(j + 1));
+                                                    listUsers.set(j + 1,a);
+
+                                                }
+
+
+                                    }
+
+                                    adapter.notifyDataSetChanged();
+
+                                }
+
+                                @Override
+                                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+
+
+
+                                }
+
+                                @Override
+                                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                                    listUsers.clear();
+                                    Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
+                                    while (cur.moveToNext()){
+
+                                        Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
+                                                " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
+
+                                        Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
+                                        try {
+                                            user.moveToNext();
+                                            informesss.moveToNext();
+                                            if (informesss.getString(0).equals(account.username)) {
+                                                informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
+                                                listUsers.add(infor);
+                                                adapter.notifyDataSetChanged();
+
+                                            } else {
+                                                informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
+                                                listUsers.add(infor);
+                                                adapter.notifyDataSetChanged();
+
+                                            }
+                                        } catch (Exception e) {
+                                        } finally{
+                                            if (user != null||informesss != null) {
+                                                user.close();
+                                                informesss.close();
+                                            }
+                                        }
+
+
+
+                                        for (int i = 0; i < listUsers.size(); i++)
+                                            for (int j = 0; j < listUsers.size() - 1; j++)
+                                                if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
+                                                {
+                                                    informess a = listUsers.get(j);
+                                                    listUsers.set(j ,listUsers.get(j + 1));
+                                                    listUsers.set(j + 1,a);
+
+                                                }
+
+
+                                    }
+
+                                    adapter.notifyDataSetChanged();
+
+                                }
+
+                                @Override
+                                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+
+
+
+                            }
+
+                        @Override
+                        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                        }
+
+                        @Override
+                        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                            listUsers.clear();
+                            Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
+                            while (cur.moveToNext()){
+
+                                Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
+                                        " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
+
+                                Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
+                                try {
+                                    user.moveToNext();
+                                    informesss.moveToNext();
+                                    if (informesss.getString(0).equals(account.username)) {
+                                        informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
+                                        listUsers.add(infor);
+                                        adapter.notifyDataSetChanged();
+
+                                    } else {
+                                        informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
+                                        listUsers.add(infor);
+                                        adapter.notifyDataSetChanged();
+
+                                    }
+                                } catch (Exception e) {
+                                } finally{
+                                    if (user != null||informesss != null) {
+                                        user.close();
+                                        informesss.close();
+                                    }
+                                }
+
+
+
+                                for (int i = 0; i < listUsers.size(); i++)
+                                    for (int j = 0; j < listUsers.size() - 1; j++)
+                                        if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
+                                        {
+                                            informess a = listUsers.get(j);
+                                            listUsers.set(j ,listUsers.get(j + 1));
+                                            listUsers.set(j + 1,a);
+
+                                        }
+
+
+                            }
+
+                            adapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+
         //lay thong tin hien vao adapter informess
 
         listUsers.clear();
@@ -595,11 +629,11 @@ public class MainActivity extends AppCompatActivity {
 
             Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
                     " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
-            informesss.moveToNext();
-            Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
-            if(user.getCount()>0&& informesss.getCount() > 0) {
-                user.moveToNext();
 
+            Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
+            try {
+                user.moveToNext();
+                informesss.moveToNext();
                 if (informesss.getString(0).equals(account.username)) {
                     informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
                     listUsers.add(infor);
@@ -611,8 +645,16 @@ public class MainActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
 
                 }
-
+            } catch (Exception e) {
+            } finally{
+                if (user != null||informesss != null) {
+                    user.close();
+                    informesss.close();
+                }
             }
+
+
+
             for (int i = 0; i < listUsers.size(); i++)
                 for (int j = 0; j < listUsers.size() - 1; j++)
                     if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
@@ -626,6 +668,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        adapter.notifyDataSetChanged();
+
 
 
 
@@ -638,7 +682,25 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    private void playAudio() {
+        try{
 
+            AssetFileDescriptor assetFileDescriptor =
+
+                    getAssets().openFd("musics/ting.mp3");
+
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(
+                    assetFileDescriptor.getFileDescriptor(),
+                    assetFileDescriptor.getStartOffset(),
+                    assetFileDescriptor.getLength());
+            assetFileDescriptor.close();
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        }catch (Exception e){
+            Log.e("Error: " , e.toString());
+        }
+    }
 
 
 

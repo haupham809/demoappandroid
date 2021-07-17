@@ -9,6 +9,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,11 +18,17 @@ import android.widget.Toast;
 
 import com.example.demochatapp.database.Databases;
 import com.example.demochatapp.model.user;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Properties;
 
 public class Activitylogin extends AppCompatActivity {
 
@@ -137,9 +144,77 @@ public class Activitylogin extends AppCompatActivity {
                Dialog dialog=new  Dialog(Activitylogin.this);
                 dialog.setContentView(R.layout.activity_resetpass);
                 dialog.show();
+                EditText username;
+                Button btnsave;
+
+                username=dialog.findViewById(R.id.username);
+                btnsave=dialog.findViewById(R.id.btnreset);
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
+                btnsave.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(username.getText().length()>0){
+                            mDatabase.orderByKey().equalTo(username.getText().toString()).addChildEventListener(new ChildEventListener() {
+                                @Override
+                                public void onChildAdded(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+                                    user u1= ( user) snapshot.getValue( user.class);
+                                    guimail(u1.email,u1.pass);
+                                    dialog.cancel();
+
+                                }
+
+                                @Override
+                                public void onChildChanged(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+
+                                }
+
+                                @Override
+                                public void onChildRemoved(@NonNull @NotNull DataSnapshot snapshot) {
+
+                                }
+
+                                @Override
+                                public void onChildMoved(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+
+                                }
+                            });
+
+                            mDatabase.orderByKey().equalTo(username.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull @NotNull Task<DataSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        username.setError("Username không đúng");
+                                    }
+
+                                }
+                            });
+
+
+                        }
+                        else
+                            username.setError("vui lòng nhập username");
+
+                    }
+                });
+
+
+
+
+
             }
         });
 
+
+
+    }
+
+    private void guimail(String email , String pass) {
 
 
     }

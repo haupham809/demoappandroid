@@ -7,8 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ClipData;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -161,14 +164,18 @@ Databases databases;
                 sendmess u1= (sendmess) snapshot.getValue( sendmess.class);
 
                 if(u1.nguoigui.equals(nguoigui) &&u1.nguoinhan.equals(nguoinhan)){
-                    mess.add(u1);
+
+                    /*mess.add(u1);
                     adapter.notifyDataSetChanged();
                     listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-                    listView.setStackFromBottom(true);
+                    listView.setStackFromBottom(true);*/
                     if( (u1.nguoigui.equals(nguoigui)&&u1.nguoinhan.equals(nguoinhan)) || (u1.nguoinhan.equals(nguoigui)&&u1.nguoigui.equals(nguoinhan))  ){
                         Cursor cursor = databases.getdata("select * from message where nguoigui = '"+u1.nguoigui+"'  and nguoinhan = '"+u1.nguoinhan+"'  and   tinnhan  ='"+u1.tinnhan+"'  and  thoigiangui = '"+u1.thoigiangui+"' ");
+
+                        playAudio();
                         if(cursor.getCount()<=0){
                             databases.querydata(" insert into message values( '" +u1.nguoigui+"' , '"+u1.nguoinhan+"' , '" +u1.tinnhan+"' , '"+u1.thoigiangui+"') ");
+
                         }
 
                     }
@@ -176,17 +183,31 @@ Databases databases;
 
                 }
                 else  if(u1.nguoinhan.equals(nguoigui) &&u1.nguoigui.equals(nguoinhan)){
-                    mess.add(u1);
+
+                    /*mess.add(u1);
                     adapter.notifyDataSetChanged();
                     listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-                    listView.setStackFromBottom(true);
+                    listView.setStackFromBottom(true);*/
                     if( (u1.nguoigui.equals(nguoigui)&&u1.nguoinhan.equals(nguoinhan)) || (u1.nguoinhan.equals(nguoigui)&&u1.nguoigui.equals(nguoinhan))  ){
                         Cursor cursor = databases.getdata("select * from message where nguoigui = '"+u1.nguoigui+"'  and nguoinhan = '"+u1.nguoinhan+"'  and   tinnhan  ='"+u1.tinnhan+"'  and  thoigiangui = '"+u1.thoigiangui+"' ");
+                        playAudio();
                         if(cursor.getCount()<=0){
+
                             databases.querydata(" insert into message values( '" +u1.nguoigui+"' , '"+u1.nguoinhan+"' , '" +u1.tinnhan+"' , '"+u1.thoigiangui+"') ");
+
                         }
 
                     }
+                }
+
+                mess.clear();
+                Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+nguoigui+"' and nguoinhan = '"+nguoinhan+"' ) or " +
+                        " (  nguoinhan = '"+nguoigui+"' and nguoigui = '"+nguoinhan+"' )  " + " order by thoigiangui    ");
+                while (informesss.moveToNext()){
+                    mess.add(new sendmess(informesss.getString(0),informesss.getString(1),informesss.getString(2),informesss.getLong(3)));
+                    adapter.notifyDataSetChanged();
+                    listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+                    listView.setStackFromBottom(true);
                 }
 
             }
@@ -198,6 +219,22 @@ Databases databases;
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                sendmess u1= (sendmess) snapshot.getValue( sendmess.class);
+                int x=0;
+                ArrayList<sendmess> mess1=mess;
+                for (sendmess s:mess1) {
+                    if(s.nguoigui.equals(u1.nguoigui) &&s.nguoinhan.equals(u1.nguoinhan)&& s.thoigiangui == u1.thoigiangui){
+                        mess.remove(x);
+                        adapter.notifyDataSetChanged();
+                        break;
+                    }
+                    x++;
+                }
+
+
+
+
 
             }
 
@@ -214,7 +251,8 @@ Databases databases;
 
         //load tin nhan tu sqllite khi ko co internet
 
-        if(mDatabase.get().isCanceled()){
+        /*if(mDatabase.get().isCanceled()){*/
+        mess.clear();
             Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+nguoigui+"' and nguoinhan = '"+nguoinhan+"' ) or " +
                     " (  nguoinhan = '"+nguoigui+"' and nguoigui = '"+nguoinhan+"' )  " + " order by thoigiangui    ");
             while (informesss.moveToNext()){
@@ -223,9 +261,28 @@ Databases databases;
                 listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
                 listView.setStackFromBottom(true);
             }
+      /*  }*/
+
+
+    }
+    private void playAudio() {
+        try{
+
+            AssetFileDescriptor assetFileDescriptor =
+
+                    getAssets().openFd("musics/ting.mp3");
+
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(
+                    assetFileDescriptor.getFileDescriptor(),
+                    assetFileDescriptor.getStartOffset(),
+                    assetFileDescriptor.getLength());
+            assetFileDescriptor.close();
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        }catch (Exception e){
+            Log.e("Error: " , e.toString());
         }
-
-
     }
 
     private void event() {
@@ -307,6 +364,46 @@ Databases databases;
         });
 
     }
+
+    public  void deletetinnhan(String ng,String nn,long thoigiangui) {
+
+
+        databases = new Databases(this, "pro.sqlite", null, 1);
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("message");
+        if (!mDatabase.get().isComplete()) {
+
+            databases.querydata(" DELETE FROM message WHERE   nguoigui = '" + ng + "' and nguoinhan = '" + nn + "' and thoigiangui = " + thoigiangui );
+            mDatabase.orderByChild("nguoigui").equalTo(nguoigui).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                    for (DataSnapshot mess : snapshot.getChildren()) {
+                        sendmess u1 = (sendmess) mess.getValue(sendmess.class);
+                        if (u1.nguoinhan.equals(nn) && u1.nguoigui.equals(ng) && u1.thoigiangui == thoigiangui   ) {
+                            mess.getRef().removeValue();
+                            Toast.makeText(Activitymessager.this, "da xoa", Toast.LENGTH_SHORT).show();
+                        }
+
+
+
+                    }
+
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                }
+            });
+
+
+        }
+
+
+
+    }
+
 
     private void getid() {
         listView=findViewById(R.id.listnguoinhan);
