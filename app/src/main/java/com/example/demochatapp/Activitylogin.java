@@ -2,6 +2,7 @@ package com.example.demochatapp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -38,6 +39,8 @@ public class Activitylogin extends AppCompatActivity {
         getdata();
         getid();
         event();
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
     }
 

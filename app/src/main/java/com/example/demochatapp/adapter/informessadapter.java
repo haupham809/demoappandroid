@@ -85,7 +85,7 @@ public class informessadapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
 
-                context.joinmess(p.username);
+                context.joinmess(p.username,p.name);
 
             }
         });

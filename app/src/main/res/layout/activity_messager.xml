@@ -6,8 +6,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".Activitymessager"
-    android:padding="20dp">
+    >
+    <ListView
+        android:id="@+id/listnguoinhan"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@id/sendmess"
+        android:dividerHeight="16dp"
+        android:divider="@android:color/transparent"
+        android:stackFromBottom="true"
 
+        android:layout_marginBottom="16dp">
+
+    </ListView>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,19 +50,7 @@
             />
     </com.google.android.material.textfield.TextInputLayout>
 
-        <ListView
-            android:id="@+id/listnguoinhan"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_above="@id/sendmess"
-            android:dividerHeight="16dp"
-            android:divider="@android:color/transparent"
 
-            android:layout_marginBottom="16dp">
-
-        </ListView>
 
 
    <!-- <LinearLayout

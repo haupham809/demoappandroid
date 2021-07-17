@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.demochatapp.adapter.informessadapter;
@@ -65,8 +66,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
          account= (user) getIntent().getSerializableExtra("account");
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
         getid();
         event();
+
 
 
     }
@@ -461,12 +465,13 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public  void joinmess(String nguoinhan) {
+    public  void joinmess(String nguoinhan,String name) {
 
 
         Intent intent=new Intent(MainActivity.this,Activitymessager.class);
         intent.putExtra("nguoigui",account.username);
         intent.putExtra("nguoinhan",nguoinhan);
+        intent.putExtra("tennguoinhan",name);
         startActivity(intent);
 
     }

@@ -2,14 +2,21 @@ package com.example.demochatapp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ClipData;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.demochatapp.adapter.messadapter;
+import com.example.demochatapp.database.Databases;
 import com.example.demochatapp.model.danhsachmess;
 import com.example.demochatapp.model.sendmess;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -20,6 +27,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -29,6 +38,8 @@ EditText input;
 FloatingActionButton btnsend;
 String nguoigui;
 String nguoinhan;
+String namenguoinhan;
+Databases databases;
 
 
     @Override
@@ -37,6 +48,9 @@ String nguoinhan;
         setContentView(R.layout.activity_messager);
         nguoigui=getIntent().getStringExtra("nguoigui");
         nguoinhan=getIntent().getStringExtra("nguoinhan");
+        namenguoinhan =getIntent().getStringExtra("tennguoinhan");
+
+        setactionbar();
         getid();
         event();
         addmess();
@@ -44,7 +58,92 @@ String nguoinhan;
 
     }
 
+    private void setactionbar() {
+        ActionBar actionBar = getSupportActionBar();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_arrow_back_24);
+
+        actionBar.setTitle("   "+namenguoinhan);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId())
+        {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            case R.id.deletemess:
+                deletemess(nguoinhan);
+                break;
+
+
+
+            default:break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void deletemess(String nguoimuonxoa) {
+        databases=new Databases(this,"pro.sqlite",null,1);
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("message");
+        if(!mDatabase.get().isComplete()) {
+
+            databases.querydata(" DELETE FROM message WHERE  ( nguoigui = '" + nguoigui + "' and nguoinhan = '" + nguoinhan + "' ) or ( nguoinhan = '" + nguoigui + "' and nguoigui = '" + nguoinhan + "' )  ");
+            mDatabase.orderByChild("nguoigui").equalTo(nguoigui).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                    for (DataSnapshot mess: snapshot.getChildren()) {
+                        sendmess u1= (sendmess) mess.getValue( sendmess.class);
+                        if(u1.nguoinhan.equals(nguoinhan)){
+                            mess.getRef().removeValue();
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                }
+            });
+            mDatabase.orderByChild("nguoigui").equalTo(nguoinhan).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                    for (DataSnapshot mess: snapshot.getChildren()) {
+                        sendmess u1= (sendmess) mess.getValue( sendmess.class);
+                        if(u1.nguoinhan.equals(nguoigui)){
+                            mess.getRef().removeValue();
+                        }
+
+                    }
+                    onBackPressed();
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                }
+            });
+
+        }
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+
     private void addmess() {
+
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("message");
        final ArrayList<sendmess> mess=new ArrayList<>();
         final messadapter adapter;
@@ -58,11 +157,30 @@ String nguoinhan;
                 if(u1.nguoigui.equals(nguoigui) &&u1.nguoinhan.equals(nguoinhan)){
                     mess.add(u1);
                     adapter.notifyDataSetChanged();
+                    listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+                    listView.setStackFromBottom(true);
+                    if( (u1.nguoigui.equals(nguoigui)&&u1.nguoinhan.equals(nguoinhan)) || (u1.nguoinhan.equals(nguoigui)&&u1.nguoigui.equals(nguoinhan))  ){
+                        Cursor cursor = databases.getdata("select * from message where nguoigui = '"+u1.nguoigui+"'  and nguoinhan = '"+u1.nguoinhan+"'  and   tinnhan  ='"+u1.tinnhan+"'  and  thoigiangui = '"+u1.thoigiangui+"' ");
+                        if(cursor.getCount()<=0){
+                            databases.querydata(" insert into message values( '" +u1.nguoigui+"' , '"+u1.nguoinhan+"' , '" +u1.tinnhan+"' , '"+u1.thoigiangui+"') ");
+                        }
+
+                    }
+
 
                 }
                 else  if(u1.nguoinhan.equals(nguoigui) &&u1.nguoigui.equals(nguoinhan)){
                     mess.add(u1);
                     adapter.notifyDataSetChanged();
+                    listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+                    listView.setStackFromBottom(true);
+                    if( (u1.nguoigui.equals(nguoigui)&&u1.nguoinhan.equals(nguoinhan)) || (u1.nguoinhan.equals(nguoigui)&&u1.nguoigui.equals(nguoinhan))  ){
+                        Cursor cursor = databases.getdata("select * from message where nguoigui = '"+u1.nguoigui+"'  and nguoinhan = '"+u1.nguoinhan+"'  and   tinnhan  ='"+u1.tinnhan+"'  and  thoigiangui = '"+u1.thoigiangui+"' ");
+                        if(cursor.getCount()<=0){
+                            databases.querydata(" insert into message values( '" +u1.nguoigui+"' , '"+u1.nguoinhan+"' , '" +u1.tinnhan+"' , '"+u1.thoigiangui+"') ");
+                        }
+
+                    }
                 }
 
 
@@ -88,6 +206,19 @@ String nguoinhan;
 
             }
         });
+
+        //load tin nhan tu sqllite khi ko co internet
+        databases=new Databases(this,"pro.sqlite",null,1);
+        if(!mDatabase.get().isComplete()){
+            Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+nguoigui+"' and nguoinhan = '"+nguoinhan+"' ) or " +
+                    " (  nguoinhan = '"+nguoigui+"' and nguoigui = '"+nguoinhan+"' )  " + " order by thoigiangui    ");
+            while (informesss.moveToNext()){
+                mess.add(new sendmess(informesss.getString(0),informesss.getString(1),informesss.getString(2),informesss.getLong(3)));
+                adapter.notifyDataSetChanged();
+                listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+                listView.setStackFromBottom(true);
+            }
+        }
 
 
     }
