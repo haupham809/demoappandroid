@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Chỉnh sửa tài khoản"
+        android:text="Change password"
         android:gravity="center"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -19,18 +19,18 @@
         android:layout_marginLeft="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="106dp"
             android:layout_height="wrap_content"
-            android:text="Tài khoản:"
+            android:text="Password:"
             android:textSize="20sp" />
-        <TextView
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/txttaikhoan"
-            android:text="Tài khoản:"
+            android:id="@+id/password"
+            android:hint="Nhập password:"
             android:textSize="20sp"/>
 
     </LinearLayout>
@@ -40,19 +40,19 @@
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
         <TextView
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/txtname"
-            android:text="Tên:  "
+            android:text="New Password:"
             android:textSize="20sp"/>
         <EditText
-            android:layout_marginRight="20dp"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/editname"
-            android:hint="Name"
+            android:id="@+id/newpass"
+            android:hint="New password"
             android:textSize="20sp"/>
     </LinearLayout>
 
@@ -62,18 +62,18 @@
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
         <TextView
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:text="Email:"
-            android:textSize="20sp"/>
-        <EditText
-            android:layout_marginRight="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/txtemail"
-            android:hint="email"
+            android:text="confire Password:"
+            android:textSize="20sp"/>
+        <EditText
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/confirmpass"
+            android:hint="Confirm password"
             android:textSize="20sp"/>
 
     </LinearLayout>

@@ -17,34 +17,6 @@
     >
 
 </TextView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="108dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Họ và tên :"
-            android:textColor="@color/blue"
-            android:textSize="20dp">
-
-        </TextView>
-    <TextView
-        android:id="@+id/hoten"
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Họ và tên :"
-        android:textColor="@color/blue"
-        android:textSize="20dp"
-        >
-
-    </TextView>
-    </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -76,6 +48,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="108dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Họ và tên :"
+            android:textColor="@color/blue"
+            android:textSize="20dp">
+
+        </TextView>
+    <TextView
+        android:id="@+id/hoten"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Họ và tên :"
+        android:textColor="@color/blue"
+        android:textSize="20dp"
+        >
+
+    </TextView>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <TextView
             android:layout_marginTop="10dp"
             android:layout_width="108dp"
@@ -99,15 +99,22 @@
     </TextView>
 
     </LinearLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icons8_user"
+        android:id="@+id/anhdaidiien"></ImageView>
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal">
         <Button
-            android:id="@+id/btnlogout"
+            android:id="@+id/btneditpass"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Đăng xuất"
+            android:text="Change password"
             android:layout_gravity="center"
             android:layout_margin="20dp"/>
         <Button
@@ -118,5 +125,11 @@
             android:layout_gravity="center"
             android:layout_margin="20dp"/>
     </LinearLayout>
-
+    <Button
+        android:id="@+id/btnlogout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đăng xuất"
+        android:layout_gravity="center"
+       />
 </LinearLayout>

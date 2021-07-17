@@ -58,7 +58,7 @@ public class informessadapter extends BaseAdapter {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.iteminforsendmess, null);
             holder.nguoinhan = convertView.findViewById(R.id.name);
-            holder.email = convertView.findViewById(R.id.email);
+           /* holder.email = convertView.findViewById(R.id.email);*/
             holder.tinnhan = convertView.findViewById(R.id.tinnhandagui);
             holder.nguoigui = convertView.findViewById(R.id.nguoigui);
             holder.thoigiangui = convertView.findViewById(R.id.thoigiangui);
@@ -70,7 +70,7 @@ public class informessadapter extends BaseAdapter {
         }
         informess p = informesses.get(position);
         holder.nguoinhan.setText(p.name);
-        holder.email.setText(p.email);
+       /* holder.email.setText(p.email);*/
         holder.tinnhan.setText(p.tinnhanmoinhat);
         holder.nguoigui.setText(p.nguoigui + ":");
         Date date=new Date(p.thoigiangui);
@@ -93,7 +93,7 @@ public class informessadapter extends BaseAdapter {
     }
     public static class ViewHolder{
         TextView nguoinhan;
-        TextView email;
+        /*TextView email;*/
         TextView tinnhan;
         TextView nguoigui;
         TextView thoigiangui;

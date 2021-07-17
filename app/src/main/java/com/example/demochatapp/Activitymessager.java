@@ -6,6 +6,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ClipData;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import com.example.demochatapp.adapter.messadapter;
 import com.example.demochatapp.database.Databases;
 import com.example.demochatapp.model.danhsachmess;
 import com.example.demochatapp.model.sendmess;
+import com.example.demochatapp.model.user;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -78,6 +80,7 @@ Databases databases;
                 return true;
             case R.id.deletemess:
                 deletemess(nguoinhan);
+                onBackPressed();
                 break;
 
 
@@ -93,14 +96,16 @@ Databases databases;
         if(!mDatabase.get().isComplete()) {
 
             databases.querydata(" DELETE FROM message WHERE  ( nguoigui = '" + nguoigui + "' and nguoinhan = '" + nguoinhan + "' ) or ( nguoinhan = '" + nguoigui + "' and nguoigui = '" + nguoinhan + "' )  ");
-            mDatabase.orderByChild("nguoigui").equalTo(nguoigui).addValueEventListener(new ValueEventListener() {
+            mDatabase.orderByChild("nguoigui").equalTo(nguoigui).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                    for (DataSnapshot mess: snapshot.getChildren()) {
-                        sendmess u1= (sendmess) mess.getValue( sendmess.class);
-                        if(u1.nguoinhan.equals(nguoinhan)){
+                    for (DataSnapshot mess : snapshot.getChildren()) {
+                        sendmess u1 = (sendmess) mess.getValue(sendmess.class);
+                        if (u1.nguoinhan.equals(nguoinhan)) {
                             mess.getRef().removeValue();
                         }
+
+
 
                     }
                 }
@@ -120,7 +125,8 @@ Databases databases;
                         }
 
                     }
-                    onBackPressed();
+
+
 
                 }
 
@@ -143,7 +149,7 @@ Databases databases;
 
 
     private void addmess() {
-
+        databases=new Databases(this,"pro.sqlite",null,1);
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("message");
        final ArrayList<sendmess> mess=new ArrayList<>();
         final messadapter adapter;
@@ -183,7 +189,6 @@ Databases databases;
                     }
                 }
 
-
             }
 
             @Override
@@ -208,8 +213,8 @@ Databases databases;
         });
 
         //load tin nhan tu sqllite khi ko co internet
-        databases=new Databases(this,"pro.sqlite",null,1);
-        if(!mDatabase.get().isComplete()){
+
+        if(mDatabase.get().isCanceled()){
             Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+nguoigui+"' and nguoinhan = '"+nguoinhan+"' ) or " +
                     " (  nguoinhan = '"+nguoigui+"' and nguoigui = '"+nguoinhan+"' )  " + " order by thoigiangui    ");
             while (informesss.moveToNext()){

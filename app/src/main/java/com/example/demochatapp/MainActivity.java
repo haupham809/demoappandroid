@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.QuickContactBadge;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     ListView listViewtimkiem ,listViewinfor;
     EditText test;
     EditText noidung;
-    Button btntiemkiem ,btnlogout,btneditacc;
+    Button btntiemkiem ,btnlogout,btneditacc,btnchangepass;
     TextView hotenaccount,emailaccount,usernameaccount;
     user account;
     Databases databases;
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
                    usernameaccount =findViewById(R.id.username);
                    btnlogout=findViewById(R.id.btnlogout);
                    btneditacc=findViewById(R.id.btnedit);
+                   btnchangepass=findViewById(R.id.btneditpass);
                    hotenaccount.setText(account.name);
                    emailaccount.setText(account.email);
                    usernameaccount.setText(account.username);
@@ -159,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                 account.name=null;
                 databases=new Databases(MainActivity.this,"pro.sqlite",null,1);
                 databases.querydata("delete from userdangnhap ");
-
+                /*databases.querydata("delete from lichsutimkiem ");*/
                 startActivity(new Intent(MainActivity.this
                         ,Activitylogin.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK));
 
@@ -172,8 +174,8 @@ public class MainActivity extends AppCompatActivity {
                 Dialog dialog=new Dialog(MainActivity.this);
                 dialog.setContentView(R.layout.activity_editacc);
                 dialog.show();
-                TextView editusername,editemail;
-                EditText editname;
+                TextView editusername;
+                EditText editname,editemail;
                 Button editsave;
                 editusername=dialog.findViewById(R.id.txttaikhoan);
                 editemail=dialog.findViewById(R.id.txtemail);
@@ -185,17 +187,26 @@ public class MainActivity extends AppCompatActivity {
                 editsave.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(editname.getText().length()>0){
-                            if(!updateaccount(editname.getText().toString(),account.pass)){
+                        if(editname.getText().length()>0&&editemail.getText().length()>0){
+                            if(!updateaccount(editname.getText().toString(),account.pass,editemail.getText().toString())){
                                 databases=new Databases(MainActivity.this,"pro.sqlite",null,1);
-                                databases.querydata(" UPDATE userdangnhap SET  name = '"+editname.getText().toString()+"' ");
+                                databases.querydata(" UPDATE userdangnhap SET  name = '"+editname.getText().toString()+"' ,  email = '"+editemail.getText().toString()+"' ");
                                 Toast.makeText(MainActivity.this,"Đổi tên thành công",Toast.LENGTH_SHORT).show();
                                 hotenaccount.setText(editname.getText());
+                                emailaccount.setText(editemail.getText());
+                                account.name=editname.getText().toString();
+                                account.email=editemail.getText().toString();
                                 dialog.cancel();
                             }
 
                         }
-                        else editname.setError("Vui lòng nhập tên");
+                        else {
+                            if(editname.getText().length()==0)
+                            editname.setError("Vui lòng nhập tên");
+                            else if(editemail.getText().length()==0){
+                            editemail.setError("Vui lòng nhập email");
+                            }
+                        }
 
                     }
                 });
@@ -205,11 +216,81 @@ public class MainActivity extends AppCompatActivity {
               /*  updateaccount(if*//**//*);*/
             }
         });
+
+        btnchangepass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                Dialog dialog=new Dialog(MainActivity.this);
+                dialog.setContentView(R.layout.activity_editpass);
+                dialog.show();
+
+                EditText pass,confirmpass,newpass;
+                Button editsave;
+                pass=dialog.findViewById(R.id.password);
+                newpass=dialog.findViewById(R.id.newpass);
+                confirmpass=dialog.findViewById(R.id.confirmpass);
+                editsave=dialog.findViewById(R.id.btnsave);
+                editsave.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(pass.getText().length()>0&&newpass.getText().length()>0 && confirmpass.getText().length()>0){
+
+                            if(!pass.getText().toString().equals(account.pass)){
+                                pass.setError("Mật khẩu không đúng");
+
+                            }
+                            else if(!newpass.getText().toString().equals(confirmpass.getText().toString())){
+                                confirmpass.setError("xác nhận mật khẩu không đúng");
+
+                            }
+                            if(pass.getText().toString().equals(account.pass)&& newpass.getText().toString().equals(confirmpass.getText().toString())){
+
+                                if(!updateaccount(account.name,newpass.getText().toString(),account.email)){
+                                    databases=new Databases(MainActivity.this,"pro.sqlite",null,1);
+                                    databases.querydata(" UPDATE userdangnhap SET  password = '"+newpass.getText().toString()+"'  ");
+                                    Toast.makeText(MainActivity.this,"Đổi  thành công",Toast.LENGTH_SHORT).show();
+                                    databases.querydata("delete from userdangnhap ");
+                                    /*databases.querydata("delete from lichsutimkiem ");*/
+                                    startActivity(new Intent(MainActivity.this
+                                            ,Activitylogin.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK));
+
+                                }
+
+
+                            }
+
+
+
+                        }
+                        else {
+                            if(pass.getText().length()==0)
+                                pass.setError("Vui lòng nhập mật khẩu");
+                            else if(newpass.getText().length()==0){
+                                newpass.setError("Vui lòng nhập mật khẩu mới");
+                            }
+                            else if(confirmpass.getText().length()==0){
+                                confirmpass.setError("Vui lòng nhập xác nhận mật khẩu");
+                            }
+                        }
+
+                    }
+                });
+
+
+
+                /*  updateaccount(if*//**//*);*/
+
+
+            }
+        });
+
     }
 
-    private boolean updateaccount(String name,String pass) {
+    private boolean updateaccount(String name,String pass,String email ) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
-        user user=new user(name,account.username,account.email,pass);
+        user user=new user(name,account.username,email,pass);
        return mDatabase.child(account.username).setValue(user).isSuccessful();
     }
 
@@ -271,19 +352,98 @@ public class MainActivity extends AppCompatActivity {
                                         Cursor cursor = databases.getdata("select * from message where nguoigui = '"+tinnhan.nguoigui+"'  and nguoinhan = '"+tinnhan.nguoinhan+"'  and   tinnhan  ='"+tinnhan.tinnhan+"'  and  thoigiangui = '"+tinnhan.thoigiangui+"' ");
                                        if(cursor.getCount()<=0){
                                            databases.querydata(" insert into message values( '" +tinnhan.nguoigui+"' , '"+tinnhan.nguoinhan+"' , '" +tinnhan.tinnhan+"' , '"+tinnhan.thoigiangui+"') ");
+
                                        }
 
                                      }
+
+                                    listUsers.clear();
+                                    Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
+                                    while (cur.moveToNext()){
+
+                                        Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
+                                                " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
+                                        informesss.moveToNext();
+                                        Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
+                                        if(user.getCount()>0&& informesss.getCount() > 0) {
+                                            user.moveToNext();
+
+                                                if (informesss.getString(0).equals(account.username)) {
+                                                    informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
+                                                    listUsers.add(infor);
+                                                    adapter.notifyDataSetChanged();
+
+                                                } else {
+                                                    informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
+                                                    listUsers.add(infor);
+                                                    adapter.notifyDataSetChanged();
+
+                                                }
+
+                                        }
+                                        for (int i = 0; i < listUsers.size(); i++)
+                                            for (int j = 0; j < listUsers.size() - 1; j++)
+                                                if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
+                                                {
+                                                    informess a = listUsers.get(j);
+                                                    listUsers.set(j ,listUsers.get(j + 1));
+                                                    listUsers.set(j + 1,a);
+
+                                                }
+
+
+                                    }
+
+                                    adapter.notifyDataSetChanged();
 
                                 }
 
                                 @Override
                                 public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
+
+
+
                                 }
 
                                 @Override
                                 public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                                    listUsers.clear();
+                                    Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
+                                    while (cur.moveToNext()){
+
+                                        Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
+                                                " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
+
+                                        Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
+                                        if(user.getCount()>0&& informesss.getCount() > 0) {
+                                            user.moveToNext();
+                                            informesss.moveToNext();
+                                            if (informesss.getString(0).equals(account.username)) {
+                                                informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
+                                                listUsers.add(infor);
+                                                adapter.notifyDataSetChanged();
+
+                                            } else {
+                                                informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
+                                                listUsers.add(infor);
+                                                adapter.notifyDataSetChanged();
+
+                                            }
+
+                                        }
+                                        for (int i = 0; i < listUsers.size(); i++)
+                                            for (int j = 0; j < listUsers.size() - 1; j++)
+                                                if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
+                                                {
+                                                    informess a = listUsers.get(j);
+                                                    listUsers.set(j ,listUsers.get(j + 1));
+                                                    listUsers.set(j + 1,a);
+
+                                                }
+
+
+                                    }
 
                                 }
 
@@ -310,6 +470,42 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onChildRemoved(@NonNull DataSnapshot snapshot) {
 
+                            listUsers.clear();
+                            Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
+                            while (cur.moveToNext()){
+
+                                Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
+                                        " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
+
+                                Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
+                                if(user.getCount()>0&& informesss.getCount() > 0) {
+                                    user.moveToNext();
+                                    informesss.moveToNext();
+                                    if (informesss.getString(0).equals(account.username)) {
+                                        informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
+                                        listUsers.add(infor);
+                                        adapter.notifyDataSetChanged();
+
+                                    } else {
+                                        informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
+                                        listUsers.add(infor);
+                                        adapter.notifyDataSetChanged();
+
+                                    }
+
+                                }
+                                for (int i = 0; i < listUsers.size(); i++)
+                                    for (int j = 0; j < listUsers.size() - 1; j++)
+                                        if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
+                                        {
+                                            informess a = listUsers.get(j);
+                                            listUsers.set(j ,listUsers.get(j + 1));
+                                            listUsers.set(j + 1,a);
+
+                                        }
+
+
+                            }
                         }
 
                         @Override
@@ -333,10 +529,50 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot1:snapshot.getChildren()){
                     danhsachmess uuu= (danhsachmess) snapshot1.getValue( danhsachmess.class);
 
-                    Cursor cur=databases.getdata("select * from nguoidanhan where username ='"+account.username+"' and nguoinhan = '"+uuu.nguoinhan+"'");
-                    if(cur.getCount() <=0 ){
+                    Cursor curs=databases.getdata("select * from nguoidanhan where username ='"+account.username+"' and nguoinhan = '"+uuu.nguoinhan+"'");
+                    if(curs.getCount() <=0 ){
 
                         databases.querydata(" insert into nguoidanhan values( '"+account.username+"' , '"+uuu.nguoinhan+"' ) ");
+
+
+                        listUsers.clear();
+                        Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
+                        while (cur.moveToNext()){
+
+                            Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
+                                    " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
+
+                            Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
+                            if(user.getCount()>0&& informesss.getCount() > 0) {
+                                informesss.moveToNext();
+                                user.moveToNext();
+
+                                if (informesss.getString(0).equals(account.username)) {
+                                    informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
+                                    listUsers.add(infor);
+                                    adapter.notifyDataSetChanged();
+
+                                } else {
+                                    informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
+                                    listUsers.add(infor);
+                                    adapter.notifyDataSetChanged();
+
+                                }
+
+                            }
+                            for (int i = 0; i < listUsers.size(); i++)
+                                for (int j = 0; j < listUsers.size() - 1; j++)
+                                    if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
+                                    {
+                                        informess a = listUsers.get(j);
+                                        listUsers.set(j ,listUsers.get(j + 1));
+                                        listUsers.set(j + 1,a);
+
+                                    }
+
+
+                        }
+
 
                     }
 
@@ -353,34 +589,42 @@ public class MainActivity extends AppCompatActivity {
 
         //lay thong tin hien vao adapter informess
 
+        listUsers.clear();
         Cursor cur=databases.getdata("select * from nguoidanhan where username='"+account.username+"' ");
         while (cur.moveToNext()){
 
             Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+account.username+"' and nguoinhan = '"+cur.getString(1)+"' ) or " +
                     " (  nguoinhan = '"+account.username+"' and nguoigui = '"+cur.getString(1)+"' )  " + " order by thoigiangui desc  LIMIT 1 ");
             informesss.moveToNext();
-             Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
-            user.moveToNext();
-            if(informesss.getCount()>0&& informesss.getCount()>0){
-                if(informesss.getString(0).equals(account.username)){
-                    informess infor=new informess(cur.getString(1),user.getString(1),user.getString(0),account.name,informesss.getString(2),informesss.getLong(3));
+            Cursor user=databases.getdata("select * from user where username='"+cur.getString(1)+"' ");
+            if(user.getCount()>0&& informesss.getCount() > 0) {
+                user.moveToNext();
+
+                if (informesss.getString(0).equals(account.username)) {
+                    informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), account.name, informesss.getString(2), informesss.getLong(3));
+                    listUsers.add(infor);
+                    adapter.notifyDataSetChanged();
+
+                } else {
+                    informess infor = new informess(cur.getString(1), user.getString(1), user.getString(0), user.getString(1), informesss.getString(2), informesss.getLong(3));
                     listUsers.add(infor);
                     adapter.notifyDataSetChanged();
 
                 }
-                else {
-                    informess infor=new informess(cur.getString(1),user.getString(1),user.getString(0),user.getString(1),informesss.getString(2),informesss.getLong(3));
-                    listUsers.add(infor);
-                    adapter.notifyDataSetChanged();
 
-                }
             }
+            for (int i = 0; i < listUsers.size(); i++)
+                for (int j = 0; j < listUsers.size() - 1; j++)
+                    if (listUsers.get(j).thoigiangui < listUsers.get(j + 1).thoigiangui)
+                    {
+                        informess a = listUsers.get(j);
+                        listUsers.set(j ,listUsers.get(j + 1));
+                        listUsers.set(j + 1,a);
 
-
+                    }
 
 
         }
-
 
 
 

@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.demochatapp.MainActivity;
@@ -51,8 +52,8 @@ public class searchadapter extends BaseAdapter {
 
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.itemsearch, null);
-            holder.hoten = view.findViewById(R.id.hoten);
-            holder.email = view.findViewById(R.id.email);
+            holder.hoten = view.findViewById(R.id.hoten);/*
+            holder.email = view.findViewById(R.id.email);*/
             holder.add = view.findViewById(R.id.btnadd);
             view.setTag(holder);
         }
@@ -61,7 +62,7 @@ public class searchadapter extends BaseAdapter {
         }
         user p = users.get(i);
         holder.hoten.setText(p.name);
-        holder.email.setText(p.email);
+        /*holder.email.setText(p.email);*/
 
         holder.add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,8 +78,8 @@ public class searchadapter extends BaseAdapter {
 
     public static class ViewHolder{
         TextView hoten;
-        TextView email;
-        ImageButton add;
+       /* TextView email;*/
+        LinearLayout add;
 
     }
 }

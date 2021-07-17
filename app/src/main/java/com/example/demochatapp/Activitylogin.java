@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -129,6 +130,16 @@ public class Activitylogin extends AppCompatActivity {
 
             }
         });
+        resetpass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+               Dialog dialog=new  Dialog(Activitylogin.this);
+                dialog.setContentView(R.layout.activity_resetpass);
+                dialog.show();
+            }
+        });
+
 
 
     }
