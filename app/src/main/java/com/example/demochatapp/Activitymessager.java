@@ -3,9 +3,11 @@ package com.example.demochatapp;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ClipData;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -16,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -40,7 +43,7 @@ import java.util.Date;
 public class Activitymessager extends AppCompatActivity {
 ListView listView;
 EditText input;
-FloatingActionButton btnsend;
+ImageButton btnsend;
 String nguoigui;
 String nguoinhan;
 String namenguoinhan;
@@ -82,8 +85,28 @@ Databases databases;
                 onBackPressed();
                 return true;
             case R.id.deletemess:
-                deletemess(nguoinhan);
-                onBackPressed();
+                AlertDialog.Builder builder = new AlertDialog.Builder(Activitymessager.this);
+
+                builder.setTitle("Select your answer.");
+                builder.setMessage("Bạn có muốn xóa cuộc trò chuyện này không");
+                builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deletemess(nguoinhan);
+                        onBackPressed();
+                    }
+                });
+                builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+
+
                 break;
 
 
@@ -106,6 +129,8 @@ Databases databases;
                         sendmess u1 = (sendmess) mess.getValue(sendmess.class);
                         if (u1.nguoinhan.equals(nguoinhan)) {
                             mess.getRef().removeValue();
+                            databases.querydata(" DELETE FROM message WHERE  ( nguoigui = '" + nguoigui + "' and nguoinhan = '" + nguoinhan + "' ) ");
+
                         }
 
 
@@ -125,6 +150,8 @@ Databases databases;
                         sendmess u1= (sendmess) mess.getValue( sendmess.class);
                         if(u1.nguoinhan.equals(nguoigui)){
                             mess.getRef().removeValue();
+                            databases.querydata(" DELETE FROM message WHERE  ( nguoinhan = '" + nguoigui + "' and nguoigui = '" + nguoinhan + "' )  ");
+
                         }
 
                     }
@@ -172,8 +199,9 @@ Databases databases;
                     if( (u1.nguoigui.equals(nguoigui)&&u1.nguoinhan.equals(nguoinhan)) || (u1.nguoinhan.equals(nguoigui)&&u1.nguoigui.equals(nguoinhan))  ){
                         Cursor cursor = databases.getdata("select * from message where nguoigui = '"+u1.nguoigui+"'  and nguoinhan = '"+u1.nguoinhan+"'  and   tinnhan  ='"+u1.tinnhan+"'  and  thoigiangui = '"+u1.thoigiangui+"' ");
 
-                        playAudio();
+
                         if(cursor.getCount()<=0){
+                            playAudio();
                             databases.querydata(" insert into message values( '" +u1.nguoigui+"' , '"+u1.nguoinhan+"' , '" +u1.tinnhan+"' , '"+u1.thoigiangui+"') ");
 
                         }
@@ -190,16 +218,15 @@ Databases databases;
                     listView.setStackFromBottom(true);*/
                     if( (u1.nguoigui.equals(nguoigui)&&u1.nguoinhan.equals(nguoinhan)) || (u1.nguoinhan.equals(nguoigui)&&u1.nguoigui.equals(nguoinhan))  ){
                         Cursor cursor = databases.getdata("select * from message where nguoigui = '"+u1.nguoigui+"'  and nguoinhan = '"+u1.nguoinhan+"'  and   tinnhan  ='"+u1.tinnhan+"'  and  thoigiangui = '"+u1.thoigiangui+"' ");
-                        playAudio();
-                        if(cursor.getCount()<=0){
 
+                        if(cursor.getCount()<=0){
+                            playAudio();
                             databases.querydata(" insert into message values( '" +u1.nguoigui+"' , '"+u1.nguoinhan+"' , '" +u1.tinnhan+"' , '"+u1.thoigiangui+"') ");
 
                         }
 
                     }
                 }
-
                 mess.clear();
                 Cursor informesss =databases.getdata("select * from message where ( nguoigui = '"+nguoigui+"' and nguoinhan = '"+nguoinhan+"' ) or " +
                         " (  nguoinhan = '"+nguoigui+"' and nguoigui = '"+nguoinhan+"' )  " + " order by thoigiangui    ");
@@ -227,8 +254,20 @@ Databases databases;
                     if(s.nguoigui.equals(u1.nguoigui) &&s.nguoinhan.equals(u1.nguoinhan)&& s.thoigiangui == u1.thoigiangui){
                         mess.remove(x);
                         adapter.notifyDataSetChanged();
+                        databases.querydata(" DELETE FROM message WHERE  ( nguoigui = '" + u1.nguoigui + "' and nguoinhan = '" + u1.nguoinhan + "' and thoigiangui = " + u1.thoigiangui +" )   ");
+
+
                         break;
                     }
+                    else if(s.nguoinhan.equals(u1.nguoigui) &&s.nguoigui.equals(u1.nguoinhan)&& s.thoigiangui == u1.thoigiangui){
+                        mess.remove(x);
+                        adapter.notifyDataSetChanged();
+                        databases.querydata(" DELETE FROM message WHERE  ( nguoigui = '" + u1.nguoinhan + "' and nguoinhan = '" + u1.nguoigui + "' and thoigiangui = " + u1.thoigiangui +" )   ");
+
+
+                        break;
+                    }
+
                     x++;
                 }
 
@@ -380,8 +419,25 @@ Databases databases;
                     for (DataSnapshot mess : snapshot.getChildren()) {
                         sendmess u1 = (sendmess) mess.getValue(sendmess.class);
                         if (u1.nguoinhan.equals(nn) && u1.nguoigui.equals(ng) && u1.thoigiangui == thoigiangui   ) {
-                            mess.getRef().removeValue();
-                            Toast.makeText(Activitymessager.this, "da xoa", Toast.LENGTH_SHORT).show();
+                            AlertDialog.Builder builder = new AlertDialog.Builder(Activitymessager.this);
+                            builder.setTitle("Select your answer.");
+                            builder.setMessage("Bạn có muốn xóa tin nhắn này không");
+                            builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mess.getRef().removeValue();
+                                    Toast.makeText(Activitymessager.this, "da xoa", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            });
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+
                         }
 
 

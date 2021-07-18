@@ -21,17 +21,19 @@
         android:layout_marginBottom="16dp">
 
     </ListView>
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:clickable="true"
-        android:src="@drawable/ic_send"
+        android:src="@drawable/icons8_email_send_96"
         android:id="@+id/sendmess"
-        android:tint="@android:color/white"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:background="@color/customblack"
+        android:scaleType="fitXY"
+        android:backgroundTint="@color/white"
         app:fabSize="normal" />
+
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
